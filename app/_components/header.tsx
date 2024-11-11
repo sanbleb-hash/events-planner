@@ -3,6 +3,7 @@ import React from 'react';
 import { FaArrowDown } from 'react-icons/fa';
 import { FaLocationPin } from 'react-icons/fa6';
 import { GrLocationPin } from 'react-icons/gr';
+import { IoLocation } from 'react-icons/io5';
 
 type Props = {};
 
@@ -28,7 +29,7 @@ const Header = (props: Props) => {
 					variant='destructive'
 					className=' flex items-center gap-3 capitalize '
 				>
-					<GrLocationPin />
+					<IoLocation className=' text-lg' />
 					westen cape <FaArrowDown />
 				</Button>
 			</div>
