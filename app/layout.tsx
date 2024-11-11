@@ -21,7 +21,7 @@ export default function RootLayout({
 		<html lang='en'>
 			<body className={fredoko.className}>
 				<NavBar />
-				{children}
+				<main className=' w-full min-h-screen bg-white'>{children}</main>
 			</body>
 		</html>
 	);
