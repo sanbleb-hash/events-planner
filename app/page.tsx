@@ -6,6 +6,8 @@ import TitleHeader from './_components/titleHeader';
 import SectionWrapper from './_components/sectionWrapper';
 import { eventslist } from '@/libs/eventsList';
 import EventCard from './_components/card';
+import CategorySection from './_components/categorysection';
+import Categories from './_components/categories';
 
 const Home = () => {
 	// State to store the window width and events display count
@@ -42,30 +44,38 @@ const Home = () => {
 	}, []);
 
 	return (
-		<div className='min-h-screen w-[90dvw] lg:w-[80dvw] bg-slate-50 mx-auto'>
-			<header className='mt-[9rem] lg:mt-[6rem]'>
-				<Header />
-			</header>
-			<SectionWrapper>
-				<TitleHeader url='/events/explore?location=westen-cape' />
-				<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:items-start justify-center'>
-					{eventslist.slice(0, eventsTotal).map((event) => (
-						<EventCard
-							key={event.id}
-							imgUrl={event.imageUrl}
-							title={event.title}
-							date={event.date}
-							time={event.time}
-							location={event.city}
-							venue={event.address}
-							charges={event.price}
-							priceType={event.priceType}
-							attendes={event.attends.length}
-						/>
-					))}
-				</div>
-			</SectionWrapper>
-		</div>
+		<>
+			<div className=' pt-20 min-h-screen w-[90dvw] lg:w-[80dvw] bg-slate-50 mx-auto'>
+				<Categories />
+				<header className='mt-[9rem] lg:mt-[6rem]'>
+					<Header />
+				</header>
+				<SectionWrapper>
+					<TitleHeader url='/events/explore?location=westen-cape' />
+					<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:items-start justify-center'>
+						{eventslist.slice(0, eventsTotal).map((event) => (
+							<EventCard
+								key={event.id}
+								imgUrl={event.imageUrl}
+								title={event.title}
+								date={event.date}
+								time={event.time}
+								location={event.city}
+								venue={event.address}
+								charges={event.price}
+								priceType={event.priceType}
+								attendes={event.attends.length}
+							/>
+						))}
+					</div>
+				</SectionWrapper>
+				<CategorySection
+					title=' Professional events'
+					url='/events/explore?cat=professional'
+					categoryId='Technology'
+				/>
+			</div>
+		</>
 	);
 };
 

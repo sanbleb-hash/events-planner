@@ -28,7 +28,7 @@ const EventCard = ({
 }: Props) => {
 	return (
 		<>
-			<Card className='w-full md:max-w-[350px] flex flex-col gap-1 p-1 bg-red-200'>
+			<Card className='w-full md:max-w-[350px] flex flex-col gap-1 p-1 bg-red-50'>
 				<div className=' w-full h-[200px] overflow-hidden'>
 					{imgUrl && (
 						<Image
