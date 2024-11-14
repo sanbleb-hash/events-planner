@@ -1,4 +1,6 @@
-export const eventslist = [
+import { Event } from '@/types/event';
+
+export const eventslist: Event[] = [
 	{
 		id: 1,
 		title: 'Summer Jazz Festival',
