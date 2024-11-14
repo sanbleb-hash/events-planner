@@ -1,9 +1,11 @@
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
+import Link from 'next/link';
 import React from 'react';
 import { IoLocation } from 'react-icons/io5';
 
 type Props = {
+	id?: number;
 	imgUrl?: string;
 	title?: string;
 	date?: string;
@@ -16,6 +18,7 @@ type Props = {
 };
 
 const EventCard = ({
+	id,
 	imgUrl,
 	title,
 	date,
@@ -27,7 +30,7 @@ const EventCard = ({
 	priceType,
 }: Props) => {
 	return (
-		<>
+		<Link href={`/events/event/${id}`}>
 			<Card className='w-full md:max-w-[350px] flex flex-col gap-1 p-1 bg-red-50'>
 				<div className=' w-full h-[200px] overflow-hidden'>
 					{imgUrl && (
@@ -68,7 +71,7 @@ const EventCard = ({
 					</p>
 				</CardContent>
 			</Card>
-		</>
+		</Link>
 	);
 };
 
