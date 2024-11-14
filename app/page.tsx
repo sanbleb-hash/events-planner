@@ -45,9 +45,9 @@ const Home = () => {
 
 	return (
 		<>
-			<div className=' pt-20 min-h-screen w-[90dvw] lg:w-[80dvw] bg-slate-50 mx-auto'>
+			<div className=' pt-14 min-h-screen w-[90dvw] lg:w-[80dvw] bg-slate-50 mx-auto'>
 				<Categories />
-				<header className='mt-[9rem] lg:mt-[6rem]'>
+				<header className='mt-[4rem] pb-10 '>
 					<Header />
 				</header>
 				<SectionWrapper>
@@ -56,6 +56,7 @@ const Home = () => {
 						{eventslist.slice(0, eventsTotal).map((event) => (
 							<EventCard
 								key={event.id}
+								id={event.id}
 								imgUrl={event.imageUrl}
 								title={event.title}
 								date={event.date}
