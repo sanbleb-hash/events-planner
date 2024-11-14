@@ -48,7 +48,9 @@ const NavBar = () => {
 	return (
 		<nav className='min-h-[4rem] bg-slate-200 text-gray-500 flex items-center justify-center shadow-xl z-50 fixed top-0 left-0 right-0'>
 			<div className='w-[90%] lg:w-[80%] h-full flex items-center justify-between mx-auto gap-4 lg:gap-10 xl:gap-28'>
-				<h1 className='text-lg text-red-400 font-bold'>eventPlanner</h1>
+				<Link href='/' className='text-lg text-red-400 font-bold capitalize'>
+					eventPlanner
+				</Link>
 
 				<ul className='flex items-center justify-between gap-3 flex-1 flex-col-reverse lg:flex-row h-[4rem]'>
 					{/* Wrap form in FormProvider */}
@@ -87,7 +89,7 @@ const NavBar = () => {
 					</FormProvider>
 
 					{/* Navigation Links */}
-					<li className='flex items-center justify-between gap-3 self-end'>
+					<li className='flex items-center justify-center h-full gap-3 self-end'>
 						{navListItems.map((navLink) => {
 							const isActive = pathname === navLink.link;
 							return (
