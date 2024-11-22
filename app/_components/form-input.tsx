@@ -17,7 +17,7 @@ const SearchBox: React.FC<Props> = ({ type, form, placeholder }) => {
 	return (
 		<FormField
 			control={form.control}
-			name={type === 'event' ? 'searchTerm' : 'location'} // Conditionally use either 'searchTerm' or 'location'
+			name={type === 'event' ? 'searchTerm' : 'location'}
 			render={({ field }) => (
 				<FormItem>
 					<FormControl>
@@ -25,7 +25,10 @@ const SearchBox: React.FC<Props> = ({ type, form, placeholder }) => {
 							{...field}
 							placeholder={placeholder}
 							type='text'
-							className='outline-none focus:outline-none border-none focus:border-none bg-inherit focus:ring-0 focus:border-b focus:border-gray-600 text-slate-200 placeholder:text-slate-300 ring-0 shadow-none'
+							className='outline-none focus:outline-none
+                     focus:ring-0 border-none 
+                     focus:border focus:border-red-300
+                     focus:bg-inherit bg-inherit  focus:border-b text-slate-200 placeholder:text-slate-300 ring-0 shadow-none'
 						/>
 					</FormControl>
 				</FormItem>
