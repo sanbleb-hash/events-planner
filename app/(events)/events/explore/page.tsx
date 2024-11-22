@@ -1,10 +1,10 @@
+import BackButton from '@/app/_components/backButton';
 import Categories from '@/app/_components/categories';
 import GridLayout from '@/app/_components/gridLayout';
 import SectionWrapper from '@/app/_components/sectionWrapper';
 
 import { eventslist } from '@/libs/eventsList';
 import React from 'react';
-import { MdArrowCircleLeft } from 'react-icons/md';
 
 type SearchParamsProps = {
 	searchParams: {
@@ -30,16 +30,17 @@ const ExplorePage = ({ searchParams }: SearchParamsProps) => {
 
 	return (
 		<SectionWrapper>
-			<h1 className='text-2xl lg:text-3xl text-gray-400 capitalize flex items-center gap-2'>
-				<span className=' cursor-pointer'>
-					<MdArrowCircleLeft />
-				</span>
+			<h1 className='text-center text-4xl lg:text-6xl font-semibold capitalize text-gray-500 pb-5'>
+				<BackButton />
 				{cat ? (
 					cat + ' events'
 				) : location ? (
 					location + ' events'
 				) : (
-					<Categories />
+					<div className=' flex flex-col'>
+						all events
+						<Categories />
+					</div>
 				)}
 			</h1>
 

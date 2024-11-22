@@ -4,7 +4,7 @@ export type Attendee = {
 	profileUrl: string;
 };
 
-export type Event = {
+export type EventSchema = {
 	id: number;
 	title: string;
 	date: string;

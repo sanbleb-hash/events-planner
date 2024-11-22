@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { clsx } from 'clsx';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 import { ImLocation } from 'react-icons/im';
@@ -80,7 +80,7 @@ const NavBar = () => {
 							</div>
 
 							<Button
-								className='rounded-full h-full px-2 bg-rose-600 py-5 hover:bg-red-400'
+								className='rounded-full h-full w- px-3 bg-rose-500 py-5 hover:bg-red-400'
 								type='submit'
 							>
 								<Search className='text-sm' />
