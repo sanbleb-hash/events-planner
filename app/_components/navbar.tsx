@@ -10,7 +10,7 @@ import { ImLocation } from 'react-icons/im';
 import { FaBars } from 'react-icons/fa';
 
 import { navListItems } from '@/libs/navLinks';
-import SearchBox from './form-input';
+import SearchBox from './searchBox';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -33,7 +33,7 @@ const NavBar = () => {
 	// Handle form submission
 	const onSubmit = (data: z.infer<typeof searchSchema>) => {
 		const { searchTerm, location } = data;
-		if (!data) return;
+		if (searchTerm === '' || location === '') return;
 		// Create URL search parameters
 		const params = new URLSearchParams();
 
