@@ -105,7 +105,10 @@ const NavBar = () => {
 								</Link>
 							);
 						})}
-						<Button className='bg-rose-700 hover:bg-rose-900 transition-all'>
+						<Button
+							className='bg-rose-700 hover:bg-rose-900 transition-all'
+							onClick={() => router.push('/auth')}
+						>
 							Get Started
 						</Button>
 						<span className='text-lg text-muted-foreground lg:hidden hover:opacity-85 cursor-pointer p-4 hover:bg-slate-300 rounded-full'>

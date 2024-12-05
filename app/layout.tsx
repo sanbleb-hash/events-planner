@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Fredoka } from 'next/font/google';
 import './globals.css';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import NavBar from './_components/navbar';
 import Footer from './_components/footer';
 const fredoko = Fredoka({
@@ -21,7 +23,9 @@ export default function RootLayout({
 	return (
 		<html lang='en'>
 			<body className={fredoko.className}>
+				<ToastContainer />
 				<NavBar />
+
 				<main className=' w-full min-h-screen bg-white'>{children}</main>
 				<Footer />
 			</body>
