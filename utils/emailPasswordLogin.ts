@@ -4,7 +4,6 @@ import {
 	signInWithEmailAndPassword,
 	UserCredential,
 } from 'firebase/auth';
-import { registerUserToDB } from './registerUserToDB';
 
 type LoginProps = {
 	email: string;
@@ -29,7 +28,6 @@ export const emailPasswordLogin = async ({
 				email,
 				password
 			);
-			await registerUserToDB(userCredential.user); // Register new user details to Firestore
 		} else {
 			throw new Error(`Unsupported login type: ${type}`);
 		}

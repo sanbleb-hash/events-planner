@@ -50,7 +50,7 @@ const Auth = () => {
 			});
 			setUser(userInfo!);
 			localStorage.setItem('userInfo', JSON.stringify(user));
-			console.log(userInfo);
+
 			toast.success(
 				isRegister ? 'Successfully signed in!' : 'Registration successful!'
 			);

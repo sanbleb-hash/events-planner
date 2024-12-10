@@ -2,54 +2,30 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { auth, db } from '@/db/firebase';
+import { auth } from '@/db/firebase';
+
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { GrGoogle } from 'react-icons/gr';
 import { toast } from 'react-toastify';
-import { useRouter } from 'next/navigation';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 type Props = {
 	isSignUp: boolean;
 };
 
 const GoogleLogin = ({ isSignUp }: Props) => {
-	const router = useRouter();
-
 	const handleGoogleLogin = async () => {
+		const googleProvider = new GoogleAuthProvider();
+
 		try {
-			const provider = new GoogleAuthProvider();
-			const result = await signInWithPopup(auth, provider);
-
-			const user = result.user;
-
+			const credentials = await signInWithPopup(auth, googleProvider);
+			const user = credentials.user;
 			if (user) {
-				const userRef = doc(db, 'users', user.uid);
-
-				// Check if the user already exists
-				const userDoc = await getDoc(userRef);
-
-				if (!userDoc.exists()) {
-					// Create a new user object
-					const newUser = {
-						userId: user.uid,
-						username: user.displayName || 'Anonymous',
-						email: user.email,
-						avatar: user.photoURL || '',
-						loginType: user.providerData[0]?.providerId || 'google',
-					};
-
-					// Save the new user to Firestore
-					await setDoc(userRef, newUser);
-				}
-
-				// Success notification and redirect
-				toast.success(`Welcome, ${user.displayName || 'User'}!`);
-				router.push(`/profile/email=${user.email}`);
+				toast.success(`Welcome, ${user.displayName || 'user'}!`);
 			}
+			console.log('User:', user);
 		} catch (error: any) {
+			toast.error('Google login failed. Please try again.');
 			console.error('Error during Google login:', error.message || error);
-			toast.error('Failed to login with Google.');
 		}
 	};
 

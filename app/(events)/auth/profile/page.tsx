@@ -5,7 +5,7 @@ import {
 	isSignInWithEmailLink,
 	signInWithEmailLink,
 } from 'firebase/auth';
-import { registerUserToDB } from '@/utils/registerUserToDB';
+
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
@@ -39,12 +39,7 @@ const ProfileClient = ({ searchParams }: Props) => {
 						window.location.href
 					);
 
-					// Register user to the database
-					const user = result.user;
-					await registerUserToDB(user);
-
 					toast.success('Successfully signed in!');
-					console.log('User signed in and registered:', user);
 
 					// Redirect or handle further logic
 					router.push('/dashboard'); // Example redirect

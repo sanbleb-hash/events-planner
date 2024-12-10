@@ -2,8 +2,9 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { auth } from '@/db/firebase'; // Firebase auth
+import { auth, db } from '@/db/firebase'; // Firebase auth
 import { onAuthStateChanged, User } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 type AuthContextType = {
 	user: User | null;
@@ -20,18 +21,46 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 	});
 
 	useEffect(() => {
-		const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-			setUser(currentUser); // Update user state
+		const handleAuthStateChanged = async (currentUser: User | null) => {
+			setUser(currentUser);
+
 			if (currentUser) {
-				// Save user info to localStorage when user logs in
-				localStorage.setItem('userInfo', JSON.stringify(currentUser));
+				try {
+					const userRef = doc(db, 'users', currentUser.uid);
+					const userDoc = await getDoc(userRef);
+
+					if (!userDoc.exists()) {
+						// Create a new user object
+						const newUser = {
+							userId: currentUser.uid,
+							username: currentUser.displayName || 'Anonymous',
+							email: currentUser.email,
+							avatar: currentUser.photoURL || '',
+							loginType:
+								currentUser.providerData[0]?.providerId || 'self typed',
+						};
+
+						// Save the new user to Firestore
+						await setDoc(userRef, newUser);
+					}
+
+					// Save user info to localStorage
+					localStorage.setItem('userInfo', JSON.stringify(currentUser));
+				} catch (error: any) {
+					console.error('Error handling user data:', error.message || error);
+				}
 			} else {
 				// Remove user info from localStorage when logged out
 				localStorage.removeItem('userInfo');
 			}
-		});
+		};
 
-		return () => unsubscribe(); // Cleanup listener on unmount
+		const unsubscribe = onAuthStateChanged(auth, handleAuthStateChanged);
+
+		return () => {
+			// Cleanup listener on unmount
+			unsubscribe();
+		};
 	}, []);
 
 	return (
