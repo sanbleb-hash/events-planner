@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import SectionWrapper from '@/app/_components/sectionWrapper';
 import { useForm, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
@@ -26,6 +26,9 @@ import { CategoryEnum } from '@/schemas/categoryEnumType';
 import { categories } from '@/libs/categoryList';
 import { MdArrowRight } from 'react-icons/md';
 import ImageUploadInput from '@/app/_components/imageUploadInput';
+import { useAuth } from '@/hooks/authContext';
+import { useRouter } from 'next/navigation';
+import { auth } from '@/db/firebase';
 
 enum PriceType {
 	Free = 'Free',
@@ -34,6 +37,10 @@ enum PriceType {
 }
 
 const Create: React.FC = () => {
+	const router = useRouter();
+
+	const currentUser = auth.currentUser;
+
 	const initialState = {
 		title: '',
 		date: '',
@@ -68,10 +75,14 @@ const Create: React.FC = () => {
 		setTimeout(() => setIsImageUpload(true), 3000);
 	};
 
+	useEffect(() => {
+		if (!currentUser) router.push('/auth');
+	}, []);
+
 	return (
 		<SectionWrapper>
 			<h1 className='text-center text-4xl lg:text-6xl font-semibold capitalize text-gray-500 pb-5'>
-				Let&apos;s Get People to the event
+				hie {currentUser?.displayName} ,Let&apos;s Get People to the event
 			</h1>
 			<p className=' first-letter:capitalize text-lg lg:text-xl text-muted-foreground text-center py-6'>
 				{isImageUpload

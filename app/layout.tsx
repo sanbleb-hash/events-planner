@@ -5,6 +5,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import NavBar from './_components/navbar';
 import Footer from './_components/footer';
+import { AuthProvider } from '@/hooks/authContext';
 const fredoko = Fredoka({
 	subsets: ['hebrew'],
 	weight: ['300', '400', '600'],
@@ -23,11 +24,13 @@ export default function RootLayout({
 	return (
 		<html lang='en'>
 			<body className={fredoko.className}>
-				<ToastContainer />
-				<NavBar />
+				<AuthProvider>
+					<ToastContainer />
+					<NavBar />
 
-				<main className=' w-full min-h-screen bg-white'>{children}</main>
-				<Footer />
+					<main className=' w-full min-h-screen bg-white'>{children}</main>
+					<Footer />
+				</AuthProvider>
 			</body>
 		</html>
 	);

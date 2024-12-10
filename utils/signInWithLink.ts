@@ -7,12 +7,13 @@ import { sendSignInLinkToEmail } from 'firebase/auth';
 export const sendLink = async (email: string): Promise<void> => {
 	// Define your action code settings
 	const actionCodeSettings = {
-		url: `${process.env.NEXT_PUBLIC_BASE_URL}/events/profile`,
+		url: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/profile?email=${email}`,
 		handleCodeInApp: true,
 	};
 
 	try {
 		// Send the sign-in link to the user's email
+
 		const user = await sendSignInLinkToEmail(auth, email, actionCodeSettings);
 
 		console.log('Sign-in link sent to email:', user);
