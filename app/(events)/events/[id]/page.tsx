@@ -9,6 +9,7 @@ import { getAuth } from 'firebase/auth';
 
 import EditToggle from './_editToggle';
 import { getEventById } from '@/actions/getEventById';
+import BookingPopover from '@/app/_components/popOver/bookingPopOver';
 
 type Props = { params: { id: string } };
 
@@ -116,9 +117,11 @@ const EventPage = async ({ params: { id } }: Props) => {
 
 							<div className='flex items-center justify-end w-full mt-10 gap-5'>
 								{priceType !== 'Invite Only' && (
-									<Button className='bg-red-400 hover:bg-rose-500 text-white'>
-										Book Appointment
-									</Button>
+									<BookingPopover>
+										<Button className='bg-red-400 hover:bg-rose-500 text-white'>
+											Book Appointment
+										</Button>
+									</BookingPopover>
 								)}
 
 								<Button variant='ghost' className='text-2xl'>
