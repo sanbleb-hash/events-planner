@@ -1,38 +1,32 @@
 'use client';
 
 import {
-	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from '@/components/ui/dialog';
 
 import React from 'react';
-import BookingContent from './bookingContent';
+import BookingForm, { CancelForm } from './bookingForm';
+import { DeleteForm } from './deletePopover';
 
 type BookingProps = {
-	children: React.ReactNode;
 	title?: string;
+	type?: 'cancel' | 'delete' | '' | undefined;
 };
 
-const BookingPopover = ({
-	children,
-	title = 'hie, reserving your sit starts here',
-}: BookingProps) => {
+const BookingPopover = ({ title = 'booking form ', type }: BookingProps) => {
 	return (
 		<>
-			<Dialog>
-				<DialogTrigger>{children}</DialogTrigger>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle className=' text-center text-muted-foreground text-xl lg:text-3xl capitalize'>
-							{title}
-						</DialogTitle>
-					</DialogHeader>
-					<BookingContent />
-				</DialogContent>
-			</Dialog>
+			<DialogContent>
+				{type === 'cancel' ? (
+					<CancelForm title={title} />
+				) : type === 'delete' ? (
+					<DeleteForm title={title} />
+				) : (
+					<BookingForm />
+				)}
+			</DialogContent>
 		</>
 	);
 };

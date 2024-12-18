@@ -10,9 +10,8 @@ import { useRouter } from 'next/navigation';
 import { auth } from '@/db/firebase';
 import { emailPasswordLogin } from '@/utils/emailPasswordLogin';
 
-import { Loader2 } from 'lucide-react';
-
 import { useAuth } from '@/hooks/authContext';
+import Loading from '@/app/_components/loading/loading';
 
 const Auth = () => {
 	const router = useRouter();
@@ -121,13 +120,7 @@ const Auth = () => {
 						className='w-full'
 					/>
 					<Button type='submit' className='w-full'>
-						{loading ? (
-							<Loader2 className=' animate-spin text-lg text-rose-300' />
-						) : isRegister ? (
-							'Sign In'
-						) : (
-							'Sign Up'
-						)}
+						{loading ? <Loading /> : isRegister ? 'Sign In' : 'Sign Up'}
 					</Button>
 				</form>
 				<p className='text-center capitalize'>or</p>

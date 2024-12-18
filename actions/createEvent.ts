@@ -3,10 +3,7 @@ import { eventSchema } from '@/schemas/eventSchema';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { z } from 'zod';
 
-export const createEvent = async (
-	data: z.infer<typeof eventSchema>,
-	userId: string
-) => {
+export const createEvent = async (data: z.infer<typeof eventSchema>) => {
 	const user = auth.currentUser; // Make sure auth.currentUser is properly initialized
 
 	if (!user) {

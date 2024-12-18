@@ -31,17 +31,13 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
-import {
-	DocumentData,
-	addDoc,
-	collection,
-	serverTimestamp,
-} from 'firebase/firestore';
-import { db } from '@/db/firebase';
+import { DocumentData } from 'firebase/firestore';
+
 import ImageUploadInput from '@/app/_components/imageUpload/imageUploadInput';
 import { getEventById } from '@/actions/getEventById';
 import { editEvent } from '@/actions/editEvent';
 import { createEvent } from '@/actions/createEvent';
+import Loading from '@/app/_components/loading/loading';
 
 enum PriceType {
 	Free = 'Free',
@@ -52,10 +48,11 @@ enum PriceType {
 
 const Create: React.FC = () => {
 	const { user: currentUser } = useAuth();
-
-	const [event, setEvent] = useState<DocumentData | undefined>({});
-
+	const [event, setEvent] = useState<DocumentData | undefined>(undefined);
 	const [fetchLoading, setFetchLoading] = useState(false);
+	const [isImageUpload, setIsImageUpload] = useState(false);
+
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const router = useRouter();
 
@@ -64,10 +61,11 @@ const Create: React.FC = () => {
 	const imageUrl = searchParams.get('imgUrl');
 	const eventId = searchParams.get('eventId');
 
-	useEffect(() => {
-		if (!eventId) return;
+	const [isEdit, setIsEdit] = useState<boolean>(!!eventId);
 
+	useEffect(() => {
 		const fetchEvent = async () => {
+			if (!eventId) return;
 			setFetchLoading(true);
 			try {
 				getEventById(eventId)
@@ -101,12 +99,9 @@ const Create: React.FC = () => {
 		imageUrl: imageUrl || '',
 	};
 
-	const [isImageUpload, setIsImageUpload] = useState(false);
-
-	const [isCreating, setIsCreating] = useState(false);
-
-	const isEdit: boolean = !!eventId;
-	console.log(isEdit);
+	useEffect(() => {
+		if (eventId) setIsEdit(true);
+	}, [eventId]);
 
 	const form = useForm<z.infer<typeof eventSchema>>({
 		resolver: zodResolver(eventSchema),
@@ -114,36 +109,25 @@ const Create: React.FC = () => {
 	});
 
 	const handleFormSubmit = async (data: z.infer<typeof eventSchema>) => {
-		setIsCreating(true);
-
-		// Check if the user is logged in
 		if (!currentUser) {
 			toast.error('Please log in first!');
-			setIsCreating(false);
-			return; // Prevent further execution if the user is not logged in
+			return;
 		}
 
+		setIsSubmitting(true);
 		try {
-			let event: DocumentData | null = {} || null;
-
-			// Check if this is an edit operation
-			if (eventId && isEdit) {
-				// Edit the existing event
-				const updatedIventId = await editEvent(data, eventId);
-				toast.success('Success: Your updated successfully');
-				router.push(`/events/${updatedIventId}`);
+			if (isEdit && eventId) {
+				await editEvent(data, eventId);
+				toast.success('Event updated successfully');
 			} else {
-				// Create a new event
-				event = await createEvent(data, currentUser.uid);
-
-				toast.success('Success: Your posting will be live very soon');
-				router.push(`/events/${event?.id}`);
+				const newEvent = await createEvent(data);
+				toast.success('Event created successfully');
+				router.push(`/events/${newEvent.id}`);
 			}
 		} catch (error) {
-			console.error('Error submitting data:', error);
-			toast.error('Error creating/updating event, please try again');
+			toast.error('Error submitting event, please try again');
 		} finally {
-			setIsCreating(false); // Always set isCreating to false once the process is complete
+			setIsSubmitting(false);
 		}
 	};
 
@@ -192,7 +176,7 @@ const Create: React.FC = () => {
 	return (
 		<SectionWrapper>
 			<h1 className='text-center text-4xl lg:text-6xl font-semibold capitalize text-gray-500 pb-5'>
-				{eventId ? 'Edit Event' : "Let's Get People to the Event "}
+				{isEdit ? 'Edit Event' : "Let's Get People to the Event "}
 			</h1>
 			<p className='first-letter:capitalize text-lg lg:text-xl text-muted-foreground text-center py-6'>
 				{isImageUpload
@@ -362,21 +346,19 @@ const Create: React.FC = () => {
 						)}
 						{isImageUpload && (
 							<button
-								disabled={isCreating}
+								disabled={isSubmitting}
 								type='submit'
-								className='w-full
-                        disabled:bg-blue-200
-                        disabled:text-gray-500
-                         bg-blue-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-600 transition duration-200'
+								className='w-full bg-blue-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-600 disabled:bg-blue-200 transition'
 							>
-								{isCreating ? (
-									<span className=' flex items-center gap-2'>
-										{' '}
-										Creating your event...{' '}
-										<Loader2 className=' text-lg pl-2 text-slate-100 animate-spin' />{' '}
-									</span>
+								{isSubmitting ? (
+									<>
+										{isEdit ? 'Editing' : 'Creating'}...{' '}
+										<Loader2 className='inline-block animate-spin' />
+									</>
+								) : isEdit ? (
+									'Edit Event'
 								) : (
-									<>{isEdit ? 'update your event' : 'Create Event'}</>
+									'Create Event'
 								)}
 							</button>
 						)}

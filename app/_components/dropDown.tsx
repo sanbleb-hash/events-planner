@@ -11,8 +11,8 @@ import {
 
 import { useRouter } from 'next/navigation';
 
-import { Loader2 } from 'lucide-react';
 import { auth } from '@/db/firebase';
+import Loading from './loading/loading';
 type Props = {
 	email: string | null | undefined;
 	children: React.ReactNode;
@@ -39,11 +39,7 @@ const DropDown = ({ children, email }: Props) => {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger>
-				{loading ? (
-					<Loader2 className=' text-rose-200 text-lg animate-spin ' />
-				) : (
-					children
-				)}
+				{loading ? <Loading /> : children}
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className=' capitalize font-semibold bg-rose-200 text-gray-500'>
 				<DropdownMenuItem

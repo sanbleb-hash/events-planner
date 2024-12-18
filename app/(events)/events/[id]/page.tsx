@@ -1,35 +1,57 @@
+'use client';
+
 import SectionWrapper from '@/app/_components/sectionWrapper';
 import { Button } from '@/components/ui/button';
 import { auth } from '@/db/firebase';
-
 import Image from 'next/image';
 import { MdShare } from 'react-icons/md';
-import React from 'react';
-
+import React, { useEffect, useState } from 'react';
 import EditToggle from './_editToggle';
 import { getEventById } from '@/actions/getEventById';
 import BookingPopover from '@/app/_components/popOver/bookingPopOver';
 import { Popover } from '@/components/ui/popover';
-import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
+import { PopoverTrigger } from '@radix-ui/react-popover';
 import PopoverComponent from '@/app/_components/popOver/popover';
+
+import { toast } from 'react-toastify';
+import { DocumentData } from 'firebase/firestore';
+import { Dialog } from '@/components/ui/dialog';
+import { DialogTrigger } from '@radix-ui/react-dialog';
 
 type Props = { params: { id: string } };
 
-const EventPage = async ({ params: { id } }: Props) => {
-	const event = await getEventById(id);
+const EventPage = ({ params: { id } }: Props) => {
+	const [event, setEvent] = useState<DocumentData | null>(null);
+	const [loading, setLoading] = useState<boolean>(true);
 	const currentUser = auth.currentUser;
 
-	// Function to convert time to AM/PM format
-	const convertTimeToMinutes = (time: string) => {
-		const [hours] = time.split(':');
-		return Number(hours) >= 12 ? 'PM' : 'AM';
-	};
+	useEffect(() => {
+		const fetchEvent = async () => {
+			try {
+				const doc = await getEventById(id);
+				if (doc) setEvent(doc);
+			} catch (e) {
+				toast.error('Failed to load event data');
+			} finally {
+				setLoading(false);
+			}
+		};
 
-	const formatPrice = (price: number): string => {
-		return price.toFixed(2); // Ensures the price is formatted to two decimal places
-	};
+		fetchEvent();
 
-	// Handle event rendering
+		return () => {
+			setEvent(null); // Clean up the event data if needed
+		};
+	}, [id]);
+
+	if (loading) {
+		return (
+			<SectionWrapper>
+				<p>Loading...</p>
+			</SectionWrapper>
+		);
+	}
+
 	if (!event) {
 		return (
 			<SectionWrapper>
@@ -38,7 +60,15 @@ const EventPage = async ({ params: { id } }: Props) => {
 		);
 	}
 
-	// Destructuring event data
+	// Function to convert time to AM/PM format
+	const convertTimeToAmPm = (time: string) => {
+		const [hours] = time.split(':');
+		return Number(hours) >= 12 ? 'PM' : 'AM';
+	};
+
+	// Format price
+	const formatPrice = (price: number): string => price.toFixed(2);
+
 	const {
 		title,
 		imageUrl,
@@ -55,13 +85,14 @@ const EventPage = async ({ params: { id } }: Props) => {
 		creatorId,
 	} = event;
 
-	// JSX rendering
-
-	const isDisabled = attendants?.some(
-		(attendant: { email: string; phoneNumber: string; name: string }) => {
-			return attendant?.email === currentUser?.email;
-		}
+	const isBookedAlready = attendants?.some(
+		(attendant: { email: string }) => attendant.email === currentUser?.email
 	);
+
+	const type = isBookedAlready ? 'cancel' : 'delete';
+	const headerTitle = isBookedAlready
+		? 'Are you sure you don’t want to attend this event anymore?'
+		: '';
 
 	return (
 		<SectionWrapper>
@@ -70,6 +101,7 @@ const EventPage = async ({ params: { id } }: Props) => {
 					<h1 className='text-start text-4xl lg:text-6xl capitalize text-gray-500 pb-5'>
 						{title}
 					</h1>
+
 					<div>
 						<EditToggle creatorId={creatorId} />
 					</div>
@@ -78,7 +110,7 @@ const EventPage = async ({ params: { id } }: Props) => {
 						<div className='w-full overflow-hidden rounded-lg'>
 							<Image
 								src={imageUrl}
-								alt='event image'
+								alt='Event Image'
 								height={250}
 								width={360}
 								className='w-full object-cover'
@@ -86,7 +118,6 @@ const EventPage = async ({ params: { id } }: Props) => {
 						</div>
 
 						<figcaption className='w-full rounded-lg flex flex-col items-start py-3'>
-							{/* Event Details */}
 							<p className='text-lg'>
 								Organized by:{' '}
 								<span className='text-muted-foreground pl-2'>{organizer}</span>
@@ -94,7 +125,7 @@ const EventPage = async ({ params: { id } }: Props) => {
 							<p className='text-lg'>
 								Happening on:{' '}
 								<span className='text-muted-foreground pl-2'>
-									{date}, {time} {convertTimeToMinutes(time)}
+									{date}, {time} {convertTimeToAmPm(time)}
 								</span>
 							</p>
 							<p className='text-lg'>
@@ -116,7 +147,7 @@ const EventPage = async ({ params: { id } }: Props) => {
 									{priceType === 'Paid'
 										? formatPrice(Number(price))
 										: priceType}{' '}
-									za
+									ZAR
 								</span>
 							</p>
 
@@ -126,16 +157,20 @@ const EventPage = async ({ params: { id } }: Props) => {
 
 							<div className='flex items-center justify-end w-full mt-10 gap-5'>
 								{priceType !== 'Invite Only' && (
-									<BookingPopover>
-										<Button
-											disabled={isDisabled}
-											className='bg-red-400 hover:bg-rose-500
-                              disabled:bg-rose-300
-                              disabled:cursor-not-allowed text-white'
-										>
-											Book Appointment
-										</Button>
-									</BookingPopover>
+									<Dialog>
+										<DialogTrigger>
+											<Button
+												className={`bg-red-400 hover:bg-rose-500 disabled:bg-rose-300 disabled:cursor-not-allowed text-white`}
+											>
+												{isBookedAlready
+													? 'Cancel Appointment'
+													: 'Book Appointment'}
+											</Button>
+										</DialogTrigger>
+										<>
+											<BookingPopover type={type} title={headerTitle} />
+										</>
+									</Dialog>
 								)}
 								<Popover>
 									<PopoverTrigger>
