@@ -3,7 +3,6 @@
 import {
 	Dialog,
 	DialogContent,
-	DialogDescription,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
@@ -28,7 +27,6 @@ const BookingPopover = ({
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle className=' text-center text-muted-foreground text-xl lg:text-3xl capitalize'>
-							{' '}
 							{title}
 						</DialogTitle>
 					</DialogHeader>

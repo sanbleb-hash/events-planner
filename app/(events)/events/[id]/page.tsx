@@ -1,20 +1,23 @@
 import SectionWrapper from '@/app/_components/sectionWrapper';
 import { Button } from '@/components/ui/button';
-import { db } from '@/db/firebase';
-import { DocumentData, doc, getDoc } from 'firebase/firestore';
+import { auth } from '@/db/firebase';
+
 import Image from 'next/image';
 import { MdShare } from 'react-icons/md';
 import React from 'react';
-import { getAuth } from 'firebase/auth';
 
 import EditToggle from './_editToggle';
 import { getEventById } from '@/actions/getEventById';
 import BookingPopover from '@/app/_components/popOver/bookingPopOver';
+import { Popover } from '@/components/ui/popover';
+import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
+import PopoverComponent from '@/app/_components/popOver/popover';
 
 type Props = { params: { id: string } };
 
 const EventPage = async ({ params: { id } }: Props) => {
 	const event = await getEventById(id);
+	const currentUser = auth.currentUser;
 
 	// Function to convert time to AM/PM format
 	const convertTimeToMinutes = (time: string) => {
@@ -53,6 +56,12 @@ const EventPage = async ({ params: { id } }: Props) => {
 	} = event;
 
 	// JSX rendering
+
+	const isDisabled = attendants?.some(
+		(attendant: { email: string; phoneNumber: string; name: string }) => {
+			return attendant?.email === currentUser?.email;
+		}
+	);
 
 	return (
 		<SectionWrapper>
@@ -118,15 +127,24 @@ const EventPage = async ({ params: { id } }: Props) => {
 							<div className='flex items-center justify-end w-full mt-10 gap-5'>
 								{priceType !== 'Invite Only' && (
 									<BookingPopover>
-										<Button className='bg-red-400 hover:bg-rose-500 text-white'>
+										<Button
+											disabled={isDisabled}
+											className='bg-red-400 hover:bg-rose-500
+                              disabled:bg-rose-300
+                              disabled:cursor-not-allowed text-white'
+										>
 											Book Appointment
 										</Button>
 									</BookingPopover>
 								)}
-
-								<Button variant='ghost' className='text-2xl'>
-									<MdShare />
-								</Button>
+								<Popover>
+									<PopoverTrigger>
+										<Button variant='ghost' className='text-2xl'>
+											<MdShare />
+										</Button>
+									</PopoverTrigger>
+									<PopoverComponent type='shareLinks' />
+								</Popover>
 							</div>
 						</figcaption>
 					</figure>
