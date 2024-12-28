@@ -136,11 +136,10 @@ const Edit: React.FC = () => {
 
 		setIsSubmitting(true);
 		try {
-			if (eventId) {
-				await editEvent(data, eventId);
-				toast.success('Event updated successfully');
-				router.push(`/events/$${eventId}`);
-			}
+			const editedEventId = await editEvent(data, eventId);
+			toast.success('Event updated successfully');
+			const id = editedEventId.substring(1);
+			router.push(`/events/$${id}`);
 		} catch (error) {
 			toast.error('Error submitting event, please try again');
 		} finally {

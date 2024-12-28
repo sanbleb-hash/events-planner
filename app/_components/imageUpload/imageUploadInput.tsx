@@ -10,9 +10,9 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import { MdArrowBack } from 'react-icons/md';
+import { MdArrowForward } from 'react-icons/md';
 import { toast } from 'react-toastify';
 
 type Props = {
@@ -31,11 +31,12 @@ const ImageUploadInput: React.FC<Props> = ({
 	const [image, setImage] = useState<File | null>(null);
 	const [uploading, setUploading] = useState(false);
 	const [editImgToggle, setEditImgToggle] = useState(false);
-	const [imageUrl, setImageUrl] = useState<string | null>('');
+	const [isNewUpload, setIsNewUpload] = useState(false);
+	const [imageUrl, setImageUrl] = useState<string | null>(null);
 
 	const router = useRouter();
 
-	// Handle image upload
+	// Upload image and update image URL
 	const uploadImage = async () => {
 		if (!image) {
 			toast.error('Please select an image first.');
@@ -48,7 +49,8 @@ const ImageUploadInput: React.FC<Props> = ({
 
 			if (typeof uploadedUrl === 'string') {
 				setImageUrl(uploadedUrl);
-				setImgUrl?.(uploadedUrl); // If a setter function is passed, update the parent component state.
+				setImgUrl?.(uploadedUrl);
+
 				toast.success('Image uploaded successfully!');
 			} else {
 				throw new Error('Invalid uploaded URL');
@@ -64,19 +66,15 @@ const ImageUploadInput: React.FC<Props> = ({
 	// Redirect after image upload
 	useEffect(() => {
 		if (imageUrl) {
-			const redirectTimer = setTimeout(() => {
-				const destination =
-					uploadType === 'edit'
-						? `/events/${eventId}/edit?imgUrl=${imageUrl}`
-						: `/create-event?imgUrl=${imageUrl}&eventId=${eventId}`;
-				router.replace(destination);
-			}, 2000);
-
-			return () => clearTimeout(redirectTimer); // Cleanup timer
+			const destination =
+				uploadType === 'edit'
+					? `/events/${eventId}/edit?imgUrl=${imageUrl}&step=info`
+					: `/create-event?imgUrl=${imageUrl}&eventId=${eventId}`;
+			router.replace(destination);
 		}
-	}, [imageUrl, router, uploadType, eventId]);
+	}, [imageUrl, router, uploadType]);
 
-	// Synchronize `imageUrl` with `localStorage`
+	// Sync `imageUrl` with local storage
 	useEffect(() => {
 		if (imageUrl) {
 			localStorage.setItem('poster', imageUrl);
@@ -85,49 +83,83 @@ const ImageUploadInput: React.FC<Props> = ({
 		}
 	}, [imageUrl]);
 
+	const handleNewUpload = () => setIsNewUpload(true);
+
+	// Form Element for File Input
+	const FormElement = () => (
+		<FormField
+			name='image'
+			render={({ field, fieldState }) => (
+				<FormItem>
+					<FormLabel htmlFor='image' className='mb-4 capitalize'>
+						Add an Image
+					</FormLabel>
+					<FormControl>
+						<Input
+							type='file'
+							hidden
+							name='image'
+							accept='image/*'
+							onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+								if (e.target.files?.[0]) {
+									setImage(e.target.files[0]);
+								}
+							}}
+						/>
+					</FormControl>
+					<FormMessage>{fieldState.error?.message}</FormMessage>
+				</FormItem>
+			)}
+		/>
+	);
+
 	return (
 		<div className='pt-16 space-y-7'>
+			{/* Current Image Display or File Upload */}
 			{evtImg && !editImgToggle ? (
 				<div>
-					<Input type='text' disabled value={evtImg} className='w-full' />
-					<Button
-						variant='default'
-						type='button'
-						onClick={() =>
-							router.replace(
-								`/events/${eventId}/edit?imgUrl=${imageUrl}&step=info`
-							)
-						}
-						className='font-semibold mt-7'
-					>
-						Continue with Current Image
-					</Button>
+					{isNewUpload ? (
+						<div>
+							<FormElement />
+							{/* Upload Button */}
+							<Button
+								type='button'
+								onClick={uploadImage}
+								disabled={!image || uploading}
+								className='mt-4 w-full'
+							>
+								{uploading ? 'Uploading...' : 'Upload Image'}
+							</Button>
+						</div>
+					) : (
+						<div className='space-y-4'>
+							<Input
+								type='text'
+								value={evtImg}
+								disabled
+								name='imageUrl'
+								className='w-full'
+							/>
+							<Button
+								variant='default'
+								type='button'
+								onClick={() =>
+									router.replace(
+										`/events/${eventId}/edit?imgUrl=${evtImg}&step=info`
+									)
+								}
+								className='text-sm'
+							>
+								Continue with Current Image{' '}
+								<MdArrowForward className='text-sm text-white ' />
+							</Button>
+						</div>
+					)}
 				</div>
 			) : (
-				<>
-					<FormField
-						name='imageUrl'
-						render={({ field, fieldState }) => (
-							<FormItem>
-								<FormLabel htmlFor='image' className='mb-4 capitalize'>
-									Add an Image
-								</FormLabel>
-								<FormControl>
-									<Input
-										type='file'
-										name='image'
-										accept='image/*'
-										onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-											if (e.target.files && e.target.files[0]) {
-												setImage(e.target.files[0]);
-											}
-										}}
-									/>
-								</FormControl>
-								<FormMessage>{fieldState.error?.message}</FormMessage>
-							</FormItem>
-						)}
-					/>
+				<div className=' w-full flex items-start flex-col'>
+					<FormElement />
+					{/* Upload Button */}
 					<Button
 						type='button'
 						onClick={uploadImage}
@@ -136,24 +168,44 @@ const ImageUploadInput: React.FC<Props> = ({
 					>
 						{uploading ? 'Uploading...' : 'Upload Image'}
 					</Button>
-				</>
+				</div>
 			)}
 
+			{/* Image Toggle Buttons */}
 			{evtImg && (
 				<div className='flex flex-col lg:flex-row gap-4 mt-4'>
-					<Button
-						variant='outline'
-						onClick={() => setEditImgToggle((prev) => !prev)}
-						className='font-semibold text-muted-foreground'
-					>
-						{editImgToggle ? (
-							<p className='flex items-center gap-2'>
-								Use Old Image <MdArrowBack className='text-xl' />
-							</p>
-						) : (
-							<p>Add New Image</p>
-						)}
-					</Button>
+					{isNewUpload ? (
+						<span
+							className='flex items-center gap-2 cursor-pointer'
+							onClick={() => {
+								setIsNewUpload(false);
+								setEditImgToggle(false);
+							}}
+						>
+							<Button
+								variant='default'
+								type='button'
+								onClick={() =>
+									router.replace(
+										`/events/${eventId}/edit?imgUrl=${evtImg}&step=info`
+									)
+								}
+								className='font-semibold flex items-center justify-center'
+							>
+								Continue with Same Image
+								<MdArrowForward className='text-sm text-white ' />
+							</Button>
+						</span>
+					) : (
+						<Button
+							type='button'
+							variant='outline'
+							className='font-semibold text-muted-foreground'
+							onClick={handleNewUpload}
+						>
+							Add New Image
+						</Button>
+					)}
 				</div>
 			)}
 		</div>
