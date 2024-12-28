@@ -30,7 +30,7 @@ const EventCard = ({
 	priceType,
 }: Props) => {
 	return (
-		<Link href={`/events/event/${id}`}>
+		<Link href={`/events/${id}`}>
 			<Card className='w-full md:max-w-[350px] flex flex-col gap-1 p-1 bg-red-50'>
 				<div className=' w-full h-[200px] overflow-hidden'>
 					{imgUrl && (

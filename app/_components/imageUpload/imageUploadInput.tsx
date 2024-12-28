@@ -10,74 +10,94 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { MdArrowBack } from 'react-icons/md';
+import { toast } from 'react-toastify';
 
 type Props = {
 	evtImg?: string;
+	uploadType?: 'edit' | 'create';
+	setImgUrl?: React.Dispatch<React.SetStateAction<string>>;
 	eventId?: string | null;
 };
 
-const ImageUploadInput: React.FC<Props> = ({ evtImg, eventId }) => {
+const ImageUploadInput: React.FC<Props> = ({
+	evtImg,
+	eventId,
+	uploadType,
+	setImgUrl,
+}) => {
 	const [image, setImage] = useState<File | null>(null);
 	const [uploading, setUploading] = useState(false);
-	const [editImgToggle, setIeditImgToggle] = useState(false);
-	const [imageUrl, setImageUrl] = useState('');
+	const [editImgToggle, setEditImgToggle] = useState(false);
+	const [imageUrl, setImageUrl] = useState<string | null>('');
+
 	const router = useRouter();
 
-	// Function to handle image upload
-	const handleUpload = async () => {
+	// Handle image upload
+	const uploadImage = async () => {
 		if (!image) {
-			alert('Please select an image first.');
+			toast.error('Please select an image first.');
 			return;
 		}
 
 		try {
 			setUploading(true);
-
-			// Upload the image and get the URL
 			const uploadedUrl = await getImgUrl(image);
 
 			if (typeof uploadedUrl === 'string') {
 				setImageUrl(uploadedUrl);
+				setImgUrl?.(uploadedUrl); // If a setter function is passed, update the parent component state.
+				toast.success('Image uploaded successfully!');
 			} else {
-				throw new Error('Uploaded URL is not a valid string');
+				throw new Error('Invalid uploaded URL');
 			}
-
-			console.log('Image uploaded successfully:', uploadedUrl);
 		} catch (error) {
 			console.error('Error uploading image:', error);
-			alert('Failed to upload the image. Please try again.');
+			toast.error('Failed to upload the image. Please try again.');
 		} finally {
 			setUploading(false);
 		}
 	};
 
-	// Redirect after successful image upload
+	// Redirect after image upload
 	useEffect(() => {
 		if (imageUrl) {
 			const redirectTimer = setTimeout(() => {
-				router.replace(`/create-event?imgUrl=${imageUrl}&eventId=${eventId}`);
+				const destination =
+					uploadType === 'edit'
+						? `/events/${eventId}/edit?imgUrl=${imageUrl}`
+						: `/create-event?imgUrl=${imageUrl}&eventId=${eventId}`;
+				router.replace(destination);
 			}, 2000);
 
 			return () => clearTimeout(redirectTimer); // Cleanup timer
 		}
-	}, [imageUrl, router]);
+	}, [imageUrl, router, uploadType, eventId]);
 
-	const handleToggleNewUpload = () => setIeditImgToggle((prev) => !prev);
+	// Synchronize `imageUrl` with `localStorage`
+	useEffect(() => {
+		if (imageUrl) {
+			localStorage.setItem('poster', imageUrl);
+		} else {
+			localStorage.removeItem('poster');
+		}
+	}, [imageUrl]);
 
 	return (
 		<div className='pt-16 space-y-7'>
-			{/* If evtImg exists and editImgToggle is true */}
 			{evtImg && !editImgToggle ? (
 				<div>
 					<Input type='text' disabled value={evtImg} className='w-full' />
-
 					<Button
 						variant='default'
 						type='button'
-						onClick={() => router.replace(`/create-event?imgUrl=${evtImg}`)}
+						onClick={() =>
+							router.replace(
+								`/events/${eventId}/edit?imgUrl=${imageUrl}&step=info`
+							)
+						}
 						className='font-semibold mt-7'
 					>
 						Continue with Current Image
@@ -108,10 +128,9 @@ const ImageUploadInput: React.FC<Props> = ({ evtImg, eventId }) => {
 							</FormItem>
 						)}
 					/>
-
 					<Button
 						type='button'
-						onClick={handleUpload}
+						onClick={uploadImage}
 						disabled={!image || uploading}
 						className='mt-4 w-full'
 					>
@@ -119,17 +138,17 @@ const ImageUploadInput: React.FC<Props> = ({ evtImg, eventId }) => {
 					</Button>
 				</>
 			)}
+
 			{evtImg && (
 				<div className='flex flex-col lg:flex-row gap-4 mt-4'>
 					<Button
 						variant='outline'
-						onClick={handleToggleNewUpload}
+						onClick={() => setEditImgToggle((prev) => !prev)}
 						className='font-semibold text-muted-foreground'
 					>
 						{editImgToggle ? (
-							<p className=' flex items-center gap-2'>
-								use old image
-								<MdArrowBack className=' text-xl ' />
+							<p className='flex items-center gap-2'>
+								Use Old Image <MdArrowBack className='text-xl' />
 							</p>
 						) : (
 							<p>Add New Image</p>

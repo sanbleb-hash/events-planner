@@ -12,36 +12,31 @@ import {
 } from '@radix-ui/react-tooltip';
 
 import { Edit } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { MdDelete } from 'react-icons/md';
 
 type Props = {
 	creatorId: string;
+	imageUrl?: string;
 };
 
-const EditToggle: React.FC<Props> = ({ creatorId }) => {
+const EditToggle: React.FC<Props> = ({ creatorId, imageUrl }) => {
 	const router = useRouter();
+	const [url, setUrl] = useState<string>('');
 	const currentUser = auth.currentUser;
 	const { id } = useParams();
 
+	useEffect(() => {
+		if (id) {
+			setUrl(`/events/${id}/edit?imageUrl=${imageUrl}`);
+		}
+	}, [id, imageUrl]);
+
 	// Handle Edit Event
 	const handleEdit = () => {
-		if (id) {
-			router.push(`/create-event?eventId=${id}`);
-		}
+		router.push(url);
 	};
-
-	// Handle Delete Event
-	// const handleDelete = async () => {
-	// 	if (!id) return;
-	// 	try {
-	// 		await deleteDoc(doc(db, 'events', id));
-	// 		toast.success('Event successfully deleted.');
-	// 		router.push('/events');
-	// 	} catch (error) {
-	// 		toast.error('Error deleting event. Please try again.');
-	// 	}
-	// };
 
 	return (
 		creatorId === currentUser?.uid && (

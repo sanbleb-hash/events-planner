@@ -7,12 +7,13 @@ import {
 } from '@/components/ui/dialog';
 
 import React from 'react';
-import BookingForm, { CancelForm } from './bookingForm';
+import BookingForm from './bookingForm';
 import { DeleteForm } from './deletePopover';
+import { CancelForm } from './cancelBooking';
 
 type BookingProps = {
 	title?: string;
-	type?: 'cancel' | 'delete' | '' | undefined;
+	type?: 'cancel' | 'delete' | 'book' | '' | undefined;
 };
 
 const BookingPopover = ({ title = 'booking form ', type }: BookingProps) => {
@@ -24,7 +25,7 @@ const BookingPopover = ({ title = 'booking form ', type }: BookingProps) => {
 				) : type === 'delete' ? (
 					<DeleteForm title={title} />
 				) : (
-					<BookingForm />
+					type === 'book' && <BookingForm />
 				)}
 			</DialogContent>
 		</>

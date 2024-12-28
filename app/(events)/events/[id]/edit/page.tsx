@@ -15,10 +15,12 @@ import {
 } from '@/components/ui/select';
 import { CategoryEnum } from '@/schemas/categoryEnumType';
 import { categories } from '@/libs/categoryList';
+
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/authContext';
 import { toast } from 'react-toastify';
 import FormFieldInput from '@/app/_components/formField';
+
 import {
 	FormControl,
 	FormField,
@@ -27,10 +29,15 @@ import {
 	FormMessage,
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
+import { DocumentData } from 'firebase/firestore';
+
 import ImageUploadInput from '@/app/_components/imageUpload/imageUploadInput';
-import { createEvent } from '@/actions/createEvent';
+import { getEventById } from '@/actions/getEventById';
+import { editEvent } from '@/actions/editEvent';
+
+import Loading from '@/app/_components/loading/loading';
 import { Button } from '@/components/ui/button';
 
 enum PriceType {
@@ -40,16 +47,64 @@ enum PriceType {
 	Invite = 'Invite Only',
 }
 
-const Create: React.FC = () => {
+const Edit: React.FC = () => {
 	const { user: currentUser } = useAuth();
-	const [imgUrl, setImgUrl] = useState<string>('');
+	const [event, setEvent] = useState<DocumentData | undefined>(undefined);
+	const [pageLoading, setPageLoading] = useState(false);
+	const [fetchLoading, setFetchLoading] = useState(false);
 	const [isImageUpload, setIsImageUpload] = useState(true);
+
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	const cachedImg = localStorage.getItem('poster');
 	const router = useRouter();
+
 	const searchParams = useSearchParams();
+	const [imgUrl, setImgUrl] = useState('');
 	const imageUrl = searchParams.get('imgUrl');
+	const cachedImg = localStorage.getItem('poster');
+	const step: string | null = searchParams.get('step');
+	const { id: eventId }: { id: string } = useParams();
+
+	useEffect(() => {
+		const fetchEvent = async () => {
+			if (!eventId) return;
+
+			try {
+				const fetchedEvent = await getEventById(eventId);
+				setEvent(fetchedEvent);
+				form.reset({
+					title: fetchedEvent?.title || '',
+					date: fetchedEvent?.date || '',
+					time: fetchedEvent?.time || '',
+					organizer: fetchedEvent?.organizer || '',
+					priceType: fetchedEvent?.priceType || PriceType.Free,
+					category: fetchedEvent?.category || CategoryEnum.Art,
+					venue: fetchedEvent?.venue || '',
+					address: fetchedEvent?.address || '',
+					city: fetchedEvent?.city || '',
+					price: fetchedEvent?.price || '',
+					country: fetchedEvent?.country || '',
+					description: fetchedEvent?.description || '',
+					attendants: fetchedEvent?.attendants || [],
+					imageUrl: fetchedEvent?.imageUrl || '',
+				});
+				localStorage.setItem('poster', fetchedEvent?.imageUrl);
+			} catch (error) {
+				toast.error('Failed to fetch event data');
+			} finally {
+				setFetchLoading(false);
+			}
+		};
+
+		fetchEvent();
+	}, [eventId]);
+
+	if (fetchLoading) {
+		return <Loading />;
+	}
+	useEffect(() => {
+		if (cachedImg) setImgUrl(cachedImg);
+	}, []);
 
 	const initialState = {
 		title: '',
@@ -81,9 +136,11 @@ const Create: React.FC = () => {
 
 		setIsSubmitting(true);
 		try {
-			const newEvent = await createEvent(data);
-			toast.success('Event created successfully');
-			router.push(`/events/${newEvent.id}`);
+			if (eventId) {
+				await editEvent(data, eventId);
+				toast.success('Event updated successfully');
+				router.push(`/events/$${eventId}`);
+			}
 		} catch (error) {
 			toast.error('Error submitting event, please try again');
 		} finally {
@@ -92,40 +149,48 @@ const Create: React.FC = () => {
 		}
 	};
 
+	// Watch the value of priceType
 	const priceType = useWatch({
 		control: form.control,
 		name: 'priceType',
 	});
-
 	useEffect(() => {
-		if (imageUrl) setIsImageUpload(false);
-	}, [imageUrl]);
+		if (imageUrl && step === 'info') setIsImageUpload(false);
+	}, [imageUrl, step]);
 
-	useEffect(() => {
-		if (cachedImg) setImgUrl(cachedImg);
-	}, []);
+	const onCancel = () => {
+		setPageLoading(true);
+		form.reset(initialState);
+		setTimeout(() => {
+			router.push(`/events/${eventId}`);
+			setPageLoading(false);
+		}, 2000);
+	};
 
+	// Determine if the price input should be shown
 	const togglePrice = priceType === PriceType.Paid;
+	if (fetchLoading || pageLoading) {
+		<p>loading ...</p>;
+	}
 
 	return (
 		<SectionWrapper>
 			<h1 className='text-center text-4xl lg:text-6xl font-semibold capitalize text-gray-500 pb-5'>
-				Let&apos;s Get People to the Event
+				Edit your Event
 			</h1>
 			<p className='first-letter:capitalize text-lg lg:text-xl text-muted-foreground text-center py-6'>
-				{isImageUpload
-					? 'Choose an image to make a poster'
-					: 'Fill the following form with your event details to get people to the event'}
+				{!isImageUpload
+					? 'Fill the following form with your event details to get people to the event'
+					: 'Choose an image to make a poster'}
 			</p>
-
-			<div className='py-5 flex items-center justify-center'>
+			<div className=' py-5 flex items-center justify-center'>
 				{imgUrl && (
 					<Image
 						src={imgUrl}
 						alt='your proposed banner image'
 						width={250}
 						height={250}
-						className='object-cover rounded-md shadow-md aspect-video'
+						className=' object-cover rounded-md shadow-md aspect-video'
 					/>
 				)}
 			</div>
@@ -136,13 +201,7 @@ const Create: React.FC = () => {
 						onSubmit={form.handleSubmit(handleFormSubmit)}
 						className='w-full space-y-6 flex flex-col'
 					>
-						{isImageUpload ? (
-							<ImageUploadInput
-								setImgUrl={setImgUrl}
-								evtImg={imageUrl!}
-								uploadType='create'
-							/>
-						) : (
+						{!isImageUpload ? (
 							<>
 								<FormFieldInput
 									name='title'
@@ -165,11 +224,13 @@ const Create: React.FC = () => {
 									/>
 								</div>
 
-								<div className='flex flex-col gap-3 lg:flex-row w-full'>
+								{/*selects*/}
+								<div className=' flex flex-col gap-3 lg:flex-row w-full'>
+									{/* Price Type */}
 									<FormField
 										name='priceType'
 										render={({ field }) => (
-											<FormItem className='flex-1'>
+											<FormItem className=' flex-1'>
 												<FormLabel>Price Type</FormLabel>
 												<FormControl>
 													<Select
@@ -180,11 +241,18 @@ const Create: React.FC = () => {
 															<SelectValue placeholder='Select price type' />
 														</SelectTrigger>
 														<SelectContent>
-															{Object.values(PriceType).map((type) => (
-																<SelectItem key={type} value={type}>
-																	{type}
-																</SelectItem>
-															))}
+															<SelectItem value={PriceType.Free}>
+																Free
+															</SelectItem>
+															<SelectItem value={PriceType.Paid}>
+																Paid
+															</SelectItem>
+															<SelectItem value={PriceType.Donation}>
+																Donation
+															</SelectItem>
+															<SelectItem value={PriceType.Invite}>
+																Invite Only
+															</SelectItem>
 														</SelectContent>
 													</Select>
 												</FormControl>
@@ -192,10 +260,11 @@ const Create: React.FC = () => {
 										)}
 									/>
 
+									{/* Category */}
 									<FormField
 										name='category'
 										render={({ field, fieldState }) => (
-											<FormItem className='flex-1'>
+											<FormItem className=' flex-1'>
 												<FormLabel>Category</FormLabel>
 												<FormControl>
 													<Select
@@ -219,7 +288,6 @@ const Create: React.FC = () => {
 										)}
 									/>
 								</div>
-
 								<FormFieldInput
 									name='organizer'
 									type='text'
@@ -259,6 +327,7 @@ const Create: React.FC = () => {
 									/>
 								)}
 
+								{/* Description */}
 								<FormField
 									name='description'
 									render={({ field, fieldState }) => (
@@ -271,23 +340,40 @@ const Create: React.FC = () => {
 										</FormItem>
 									)}
 								/>
-
-								<Button
-									disabled={isSubmitting}
+							</>
+						) : (
+							<ImageUploadInput
+								evtImg={event?.imageUrl}
+								eventId={eventId}
+								uploadType='edit'
+							/>
+						)}
+						<div className=' w-full flex gap-5 flex-col md:flex-row'>
+							{!isImageUpload && (
+								<button
+									className='flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg
+								font-semibold hover:bg-blue-600 disabled:bg-blue-200 transition'
 									type='submit'
-									className='w-full bg-blue-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-600 disabled:bg-blue-200 transition'
 								>
 									{isSubmitting ? (
 										<>
-											Creating ...
+											Editing...{' '}
 											<Loader2 className='inline-block animate-spin' />
 										</>
 									) : (
-										'Create Event'
+										'edit'
 									)}
-								</Button>
-							</>
-						)}
+								</button>
+							)}
+							<Button
+								onClick={onCancel}
+								type='button'
+								variant='outline'
+								className=' '
+							>
+								cancel
+							</Button>
+						</div>
 					</form>
 				</FormProvider>
 			</section>
@@ -295,4 +381,4 @@ const Create: React.FC = () => {
 	);
 };
 
-export default Create;
+export default Edit;

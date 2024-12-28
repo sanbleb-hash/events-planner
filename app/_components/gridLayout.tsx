@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import EventCard from './card';
-import { Event } from '@/types/event';
+import { DocumentData } from 'firebase/firestore';
 
 type Props = {
-	eventslist: Event[];
+	eventslist: DocumentData[];
 };
 
 const GridLayout = ({ eventslist }: Props) => {
@@ -48,7 +48,7 @@ const GridLayout = ({ eventslist }: Props) => {
 					venue={event.address}
 					charges={event.price}
 					priceType={event.priceType}
-					attendes={event.attends.length}
+					attendes={event.attendants.length}
 				/>
 			))}
 		</div>

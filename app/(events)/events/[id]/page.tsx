@@ -89,7 +89,7 @@ const EventPage = ({ params: { id } }: Props) => {
 		(attendant: { email: string }) => attendant.email === currentUser?.email
 	);
 
-	const type = isBookedAlready ? 'cancel' : 'delete';
+	const type = isBookedAlready ? 'cancel' : isBookedAlready ? 'delete' : 'book';
 	const headerTitle = isBookedAlready
 		? 'Are you sure you don’t want to attend this event anymore?'
 		: '';
@@ -103,7 +103,7 @@ const EventPage = ({ params: { id } }: Props) => {
 					</h1>
 
 					<div>
-						<EditToggle creatorId={creatorId} />
+						<EditToggle imageUrl={imageUrl} creatorId={creatorId} />
 					</div>
 
 					<figure className='w-full bg-slate-200 p-3 rounded-md overflow-hidden flex flex-col items-start justify-start'>
