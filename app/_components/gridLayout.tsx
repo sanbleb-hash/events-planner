@@ -7,23 +7,25 @@ import { DocumentData } from 'firebase/firestore';
 type Props = {
 	eventslist: DocumentData[];
 };
+const SMALL_SCREEN = 640;
+const MEDIUM_SCREEN = 950;
+const LARGE_SCREEN = 1080;
 
 const GridLayout = ({ eventslist }: Props) => {
-	const [viewportWidth, setViewportWidth] = useState<number | null>(null);
-	const [visibleEvents, setVisibleEvents] = useState<number>(4);
+	const [visibleEvents, setVisibleEvents] = useState<DocumentData[]>([]);
+	const [visibleCount, setVisibleCount] = useState<number>(4);
 
-	const determineEventsTotal = (width: number) => {
-		if (width <= 640) return 4; // Small screens
-		if (width <= 950) return 6; // Medium screens
-		if (width <= 1280) return 8; // Large screens
-		return 10; // Extra large screens
+	const determineEventsTotal = (width: number): number => {
+		if (width <= SMALL_SCREEN) return 3; // Small screens
+		if (width > SMALL_SCREEN && width <= MEDIUM_SCREEN) return 4; // Medium screens
+		return 8; // Large screens
 	};
 
 	useEffect(() => {
 		const handleResize = () => {
 			const width = window.innerWidth;
-			setViewportWidth(width);
-			setVisibleEvents(determineEventsTotal(width));
+
+			setVisibleCount(determineEventsTotal(width));
 		};
 
 		handleResize(); // Initial calculation on mount
@@ -33,10 +35,18 @@ const GridLayout = ({ eventslist }: Props) => {
 			window.removeEventListener('resize', handleResize);
 		};
 	}, []);
+	visibleCount;
+	useEffect(() => {
+		if (eventslist.length) {
+			const total = eventslist.slice(0, visibleCount);
+			setVisibleEvents(total);
+		}
+	}, [visibleCount]);
+	console.log(eventslist);
 
 	return (
-		<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:items-start justify-center'>
-			{eventslist.slice(0, visibleEvents).map((event) => (
+		<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:items-start justify-center'>
+			{visibleEvents?.map((event) => (
 				<EventCard
 					key={event.id}
 					id={event.id}
