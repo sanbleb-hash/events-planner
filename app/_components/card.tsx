@@ -9,7 +9,6 @@ type Props = {
 	imgUrl?: string;
 	title?: string;
 	date?: string;
-	time?: string;
 	location?: string;
 	venue?: string;
 	charges?: string;
@@ -25,7 +24,6 @@ const EventCard = ({
 	location,
 	venue,
 	charges,
-
 	priceType,
 }: Props) => {
 	const img =

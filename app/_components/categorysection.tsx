@@ -31,7 +31,8 @@ const CategorySection = ({ categoryId, url, title }: Props) => {
 
 	const fetchEventsByCategory = useCallback(() => {
 		const events = eventslist.filter((evt) => evt.category === categoryId);
-		//@ts-ignore
+
+		// @ts-expect-error
 		setCategories(events.slice(0, 4));
 	}, [categoryId]);
 

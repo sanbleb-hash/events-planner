@@ -8,7 +8,7 @@ type SearchPageProps = {
 	searchParams: { q?: string; locationQ?: string };
 };
 
-type TypeSearchParams = { q?: string; locationQ?: string };
+// type TypeSearchParams = { q?: string; locationQ?: string };
 
 const SearchPage = async ({ searchParams }: SearchPageProps) => {
 	// Extract and sanitize search parameters
@@ -20,14 +20,13 @@ const SearchPage = async ({ searchParams }: SearchPageProps) => {
 		q: searchTerm,
 		locationQ: locationSearchTerm,
 	});
-	console.log(events);
 
 	return (
 		<SectionWrapper>
 			<header className='flex justify-between items-center'>
 				<BackButton />
 				<h1 className='text-4xl lg:text-6xl font-semibold capitalize text-gray-500 pb-5'>
-					Search results for:{' '}
+					Search results for:
 					<span className='italic'>{searchTerm || 'all'}</span>
 				</h1>
 			</header>
@@ -52,7 +51,7 @@ const SearchPage = async ({ searchParams }: SearchPageProps) => {
 					</div>
 				) : (
 					<p className='text-center text-gray-500 pt-20 lg:pt-40'>
-						No events found for "<span className='italic'>{searchTerm}</span>".
+						No events found for <span className='italic'>{searchTerm}</span>.
 					</p>
 				)}
 			</div>
