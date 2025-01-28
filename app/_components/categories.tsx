@@ -30,13 +30,13 @@ const Categories = (props: Props) => {
 
 			{isCategoryListOpen && (
 				<div className='flex gap-2 py-2 px-4 bg-slate-100'>
-					{categories.map((cat) => (
+					{categories.map((category) => (
 						<Link
-							href={`/events/explore?cat=${cat}`}
-							key={cat}
+							href={`/events/explore?category=${category}`}
+							key={category}
 							className='text-nowrap bg-slate-200 px-3 py-1 rounded-lg shadow-md text-gray-400 text-xs lg:text-sm'
 						>
-							{cat}
+							{category}
 						</Link>
 					))}
 				</div>

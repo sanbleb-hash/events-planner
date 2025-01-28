@@ -42,10 +42,9 @@ const GridLayout = ({ eventslist }: Props) => {
 			setVisibleEvents(total);
 		}
 	}, [visibleCount]);
-	console.log(eventslist);
 
 	return (
-		<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:items-start justify-center'>
+		<div className=' pt-10 w-full  grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3  items-center md:items-start justify-center   '>
 			{visibleEvents?.map((event) => (
 				<EventCard
 					key={event.id}

@@ -8,7 +8,7 @@ const BackButton = () => {
 	const router = useRouter();
 	return (
 		<div onClick={() => router.back()}>
-			<MdArrowCircleLeft />
+			<MdArrowCircleLeft className=' text-3xl' />
 		</div>
 	);
 };

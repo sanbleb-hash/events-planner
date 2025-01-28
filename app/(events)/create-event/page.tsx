@@ -102,6 +102,10 @@ const Create: React.FC = () => {
 	}, [imageUrl]);
 
 	useEffect(() => {
+		if (!currentUser) router.push('/');
+	}, [currentUser]);
+
+	useEffect(() => {
 		if (cachedImg) setImgUrl(cachedImg);
 	}, []);
 

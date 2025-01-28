@@ -1,33 +1,55 @@
+import { searchEvents } from '@/actions/getEvents';
 import BackButton from '@/app/_components/backButton';
-import GridLayout from '@/app/_components/gridLayout';
+import EventCard from '@/app/_components/card';
 import SectionWrapper from '@/app/_components/sectionWrapper';
-import { eventslist } from '@/libs/eventsList';
 import React from 'react';
 
 type SearchPageProps = {
-	searchParams: { q?: string; loc_q?: string };
+	searchParams: { q?: string; locationQ?: string };
 };
 
-const SearchPage: React.FC<SearchPageProps> = ({ searchParams }) => {
-	const searchTerm = searchParams.q || searchParams.loc_q || '';
+type TypeSearchParams = { q?: string; locationQ?: string };
 
-	// Ensure all properties are compared correctly
-	const events = eventslist.filter((event) =>
-		[event.title, event.city, event.country, event.address].some((field) =>
-			field?.toLowerCase().includes(searchTerm.toLowerCase())
-		)
-	);
+const SearchPage = async ({ searchParams }: SearchPageProps) => {
+	// Extract and sanitize search parameters
+	const { q: searchTerm = '', locationQ: locationSearchTerm = '' } =
+		searchParams;
+
+	// Fetch events based on search terms
+	const events = await searchEvents({
+		q: searchTerm,
+		locationQ: locationSearchTerm,
+	});
+	console.log(events);
 
 	return (
 		<SectionWrapper>
-			<h1 className='text-center text-4xl lg:text-6xl font-semibold capitalize text-gray-500 pb-5'>
+			<header className='flex justify-between items-center'>
 				<BackButton />
-				Search results for: <span className='italic'>{searchTerm}</span>
-			</h1>
+				<h1 className='text-4xl lg:text-6xl font-semibold capitalize text-gray-500 pb-5'>
+					Search results for:{' '}
+					<span className='italic'>{searchTerm || 'all'}</span>
+				</h1>
+			</header>
 
 			<div className='pt-10'>
-				{events.length > 0 ? (
-					<GridLayout eventslist={events} />
+				{events?.length > 0 ? (
+					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+						{events?.map((event) => (
+							<EventCard
+								key={event.id}
+								id={event.id}
+								imgUrl={event.imageUrl}
+								title={event.title}
+								date={event.date}
+								time={event.time}
+								venue={event.venue}
+								charges={event.price}
+								attendes={event.attendants?.length || 0}
+								priceType={event.priceType}
+							/>
+						))}
+					</div>
 				) : (
 					<p className='text-center text-gray-500 pt-20 lg:pt-40'>
 						No events found for "<span className='italic'>{searchTerm}</span>".

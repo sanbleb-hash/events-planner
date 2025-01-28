@@ -22,32 +22,35 @@ const EventCard = ({
 	imgUrl,
 	title,
 	date,
-	time,
 	location,
 	venue,
 	charges,
-	attendes,
+
 	priceType,
 }: Props) => {
+	const img =
+		imgUrl ||
+		'https://plus.unsplash.com/premium_photo-1677341558055-832134a85ad6?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGxhY2Vob2xkZXIlMjBpbWFnZXxlbnwwfHwwfHx8MA%3D%3D';
 	return (
-		<Link href={`/events/${id}`}>
-			<Card className='w-full md:max-w-[350px] flex flex-col gap-1 p-1 bg-red-50'>
-				<div className=' w-full h-[200px] overflow-hidden'>
-					{imgUrl && (
-						<Image
-							src={imgUrl}
-							alt='poster'
-							width='350'
-							height='220'
-							className=' w-full h-full object-cover rounded-lg'
-						/>
-					)}
+		<Link
+			href={`/events/${id}`}
+			className=' min-w-[180px] max-w-[350px] md:min-w-[200px] min-h-[280px] '
+		>
+			<Card className='min--w-[320px] md:min-w-[200px] h-[250px] flex flex-col gap-1 p-1 bg-red-50'>
+				<div className=' w-full flex-1 overflow-hidden'>
+					<Image
+						src={img}
+						alt='poster'
+						width='180'
+						height='180'
+						className=' w-full h-full object-cover rounded-lg'
+					/>
 				</div>
-				<CardContent className='  flex items-start flex-col space-y-1 px-1 py-2 overflow-hidden'>
+				<CardContent className='  flex items-start flex-col space-y-[2px] px-1 py-2 overflow-hidden'>
 					<p className=' text-sm lg:text-[16px] text-gray-600 truncate w-full'>
 						{title}
 					</p>
-					<p className=' text-xs lg:text-sm  text-gray-500 flex items-center justify-between capitalize'>
+					<p className=' text-[8px] lg:text-sm  text-gray-500 flex items-center justify-between capitalize'>
 						date: {date}{' '}
 						{priceType === 'Paid' ? (
 							<span>price:{charges}</span>
@@ -57,17 +60,13 @@ const EventCard = ({
 							<span>Invite only</span>
 						)}
 					</p>
-					<p className=' text-xs lg:text-sm  text-gray-500 flex items-center justify-between capitalize truncate w-full'>
+					<p className=' text-[8px] lg:text-sm  text-gray-500 flex items-center justify-between capitalize truncate w-full'>
 						{' '}
 						city :{location}
 					</p>
-					<p className=' text-xs lg:text-sm  text-gray-500 flex items-center  capitalize truncate w-full  '>
+					<p className=' text-[8px] lg:text-sm  text-gray-500 flex items-center  capitalize truncate w-full  '>
 						{' '}
 						<IoLocation className=' text-lg' /> {venue}
-					</p>
-					<p className=' text-xs lg:text-sm  text-gray-500 flex items-center justify-between capitalize truncate w-full'>
-						{' '}
-						Booked by : {attendes} more and counting{' '}
 					</p>
 				</CardContent>
 			</Card>
