@@ -17,6 +17,7 @@ import { toast } from 'react-toastify';
 import { DocumentData } from 'firebase/firestore';
 import { Dialog } from '@/components/ui/dialog';
 import { DialogTrigger } from '@radix-ui/react-dialog';
+import { SkeletonLoader } from '@/components/ui/loaderSkeleton';
 
 type Props = { params: { id: string } };
 
@@ -47,7 +48,7 @@ const EventPage = ({ params: { id } }: Props) => {
 	if (loading) {
 		return (
 			<SectionWrapper>
-				<p>Loading...</p>
+				<SkeletonLoader type='event' />
 			</SectionWrapper>
 		);
 	}

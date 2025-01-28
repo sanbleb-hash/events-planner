@@ -9,7 +9,6 @@ type Props = {
 };
 const SMALL_SCREEN = 640;
 const MEDIUM_SCREEN = 950;
-const LARGE_SCREEN = 1080;
 
 const GridLayout = ({ eventslist }: Props) => {
 	const [visibleEvents, setVisibleEvents] = useState<DocumentData[]>([]);

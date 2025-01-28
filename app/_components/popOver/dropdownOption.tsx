@@ -1,12 +1,13 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+import React from 'react';
+
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useRouter } from 'next/navigation';
-import React from 'react';
 
 type Props = {
 	children: React.ReactNode;
@@ -15,7 +16,7 @@ type Props = {
 	href?: string;
 };
 
-const DropdownOption = ({ children, title, option, href }: Props) => {
+const DropdownOption = ({ children, option, href }: Props) => {
 	const router = useRouter();
 	return (
 		<DropdownMenu>
@@ -33,3 +34,4 @@ const DropdownOption = ({ children, title, option, href }: Props) => {
 };
 
 export default DropdownOption;
+('title');

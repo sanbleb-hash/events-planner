@@ -6,9 +6,7 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 import { MdKeyboardArrowRight, MdOutlineClose } from 'react-icons/md';
 
-type Props = {};
-
-const Categories = (props: Props) => {
+const Categories = () => {
 	const [isCategoryListOpen, setIsCategoryListOpen] = useState(false);
 
 	const toggleCategoryList = () => setIsCategoryListOpen((prev) => !prev);

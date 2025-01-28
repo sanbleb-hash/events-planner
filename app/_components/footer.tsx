@@ -2,9 +2,7 @@ import { eventslist } from '@/libs/eventsList';
 import Link from 'next/link';
 import React from 'react';
 
-type Props = {};
-
-const Footer = (props: Props) => {
+const Footer = () => {
 	const date = new Date();
 	const thisYear = date.getFullYear();
 	return (

@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { clsx } from 'clsx';
 import { usePathname, useRouter } from 'next/navigation';
-import { UserInfo } from 'firebase/auth';
+
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 import { ImLocation } from 'react-icons/im';
@@ -17,15 +17,8 @@ import { z } from 'zod';
 import { searchSchema } from '@/types/searchSchema';
 import { Badge } from '@/components/ui/badge';
 import DropDown from './dropDown';
-import { auth } from '@/db/firebase';
-import { useAuth } from '@/hooks/authContext';
 
-type User = {
-	displayName: string | null;
-	email: string | null;
-	phoneNumber: string | null;
-	photoURL: string | null;
-};
+import { useAuth } from '@/hooks/authContext';
 
 const NavBar = () => {
 	const pathname = usePathname();

@@ -11,6 +11,8 @@ type PopProps = { type: string };
 const PopoverComponent = ({ type }: PopProps) => {
 	const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
 
+	const [isCopied, setIsCopied] = useState(false);
+
 	const handleCopyLink = async (
 		url: string,
 		setIsCopied: React.Dispatch<React.SetStateAction<boolean>>
@@ -20,9 +22,13 @@ const PopoverComponent = ({ type }: PopProps) => {
 			setIsCopied(true);
 			toast.success('Link copied, ready to share!');
 		} catch (err) {
-			toast.error('Failed to copy the link. Please try again.');
+			toast.error('Failed to copy the link. Please try again.' + err);
 		}
 	};
+
+	{
+		isCopied && toast.success('coppied');
+	}
 
 	return (
 		<PopoverContent className='space-y-3'>
@@ -31,7 +37,6 @@ const PopoverComponent = ({ type }: PopProps) => {
 					{socialShareLinks?.map((link) => {
 						const { name, icon: Icon, url } = link;
 						const newUrl = `${url}${currentUrl}`;
-						const [isCopied, setIsCopied] = useState(false);
 
 						return (
 							<div
