@@ -23,9 +23,8 @@ const GoogleLogin = ({ isSignUp }: Props) => {
 				toast.success(`Welcome, ${user.displayName || 'user'}!`);
 			}
 			console.log('User:', user);
-		} catch (error: any) {
+		} catch (error: unknown) {
 			toast.error('Google login failed. Please try again.');
-			console.error('Error during Google login:', error.message || error);
 		}
 	};
 

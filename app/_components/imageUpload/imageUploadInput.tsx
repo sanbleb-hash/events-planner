@@ -89,7 +89,7 @@ const ImageUploadInput: React.FC<Props> = ({
 	const FormElement = () => (
 		<FormField
 			name='image'
-			render={({ field, fieldState }) => (
+			render={({ fieldState }) => (
 				<FormItem>
 					<FormLabel htmlFor='image' className='mb-4 capitalize'>
 						Add an Image
